@@ -1,0 +1,255 @@
+const callCenterList = [{
+  id: 'a',
+  name: '报警总次数',
+  query: 'sumCount'
+}, {
+  id: 'a',
+  name: '未处理报警数',
+  query: 'unProcessCount'
+}, {
+  id: 'a',
+  name: '已处理报警数',
+  query: 'finishedCount'
+}, {
+  id: 'a',
+  name: '通讯异常总次数',
+  query: 'anomalyNumber'
+}];
+const audioCenterList = [{
+  id: 'a',
+  name: '播放总次数',
+  query: 'audioPlayTotalCount'
+}, {
+  id: 'a',
+  name: '播放任务总数',
+  query: 'audioPlayTasksCount'
+}, {
+  id: 'a',
+  name: '政策宣传应用场景数',
+  query: 'policyCount'
+}, {
+  id: 'a',
+  name: '文化传播应用场景数',
+  query: 'cultureCount'
+}, {
+  id: 'a',
+  name: '公益应用场景数',
+  query: 'publicGoodCount'
+}, {
+  id: 'a',
+  name: '应急传媒应用场景数',
+  query: 'emergencyCount'
+}, {
+  id: 'a',
+  name: '交通指引应用场景数',
+  query: 'trafficCount'
+}, {
+  id: 'a',
+  name: '通讯异常总次数',
+  query: 'excepitonTotalCount'
+}];
+const ledCenterList = [{
+  id: 'a',
+  name: '播放总次数',
+  query: 'playCount'
+}, {
+  id: 'a',
+  name: '播放总时长',
+  query: 'playTimeCount',
+  unit: 'h'
+}, {
+  id: 'a',
+  name: '政策宣传应用场景数',
+  query: 'policyCount'
+}, {
+  id: 'a',
+  name: '文化传播应用场景数',
+  query: 'cultureCount'
+}, {
+  id: 'a',
+  name: '公益应用场景数',
+  query: 'publicGoodCount'
+}, {
+  id: 'a',
+  name: '应急传媒应用场景数',
+  query: 'emergencyCount'
+}, {
+  id: 'a',
+  name: '交通指引应用场景数',
+  query: 'trafficCount'
+}, {
+  id: 'a',
+  name: '通讯异常总次数',
+  query: 'exceptionCount'
+}];
+//   环境监测器
+const ambientCenterList = [{
+  id: 'a',
+  name: '报警总次数',
+  query: 'alarmSumCount'
+}, {
+  id: 'a',
+  name: '未处理报警数',
+  query: 'unHandleCount'
+}, {
+  id: 'a',
+  name: '已处理报警数',
+  query: 'doHandleCount'
+}, {
+  id: 'a',
+  name: '温度上限报警数',
+  query: 'temperatureAlarm'
+}, {
+  id: 'a',
+  name: '湿度上限报警数',
+  query: 'humidityAlarm'
+}, {
+  id: 'a',
+  name: '噪声上限报警数',
+  query: 'noiseAlarm'
+}, {
+  id: 'a',
+  name: 'PM2.5上限报警数',
+  query: 'pmAlarm'
+}, {
+  id: 'a',
+  name: 'PM10上限报警数',
+  query: 'pmTenAlarm'
+}, {
+  id: 'a',
+  name: '通讯异常总次数',
+  query: 'anomalyNumber'
+}];
+// 照明灯
+const lampCenterList = [{
+  id: 'a',
+  name: '耗电量总计',
+  query: 'powerSum',
+  unit: '度'
+}, {
+  id: 'a',
+  name: '实际总电量',
+  query: 'actualSum',
+  unit: '度'
+}, {
+  id: 'a',
+  name: '节能用电',
+  query: 'saveSum',
+  unit: '度'
+}, {
+  id: 'a',
+  name: '照明平均亮度',
+  query: 'avgLight',
+  unit: '%'
+}, {
+  id: 'a',
+  name: '通讯异常总数量',
+  query: 'exceptionSum'
+}, {
+  id: 'a',
+  name: '照明总时长',
+  query: 'lightTimeSum',
+  unit: 'h'
+}, {
+  id: 'a',
+  name: '通讯异常总时长',
+  query: 'exceptionTimeSum',
+  unit: 'h'
+}];
+//   烟感
+const smokeCenterList = [{
+  id: 'a',
+  name: '告警总次数',
+  query: 'alarmCount'
+}, {
+  id: 'a',
+  name: '已处理告警数',
+  query: 'confirmAlarmCount'
+}, {
+  id: 'a',
+  name: '未处理告警数',
+  query: 'unConfirmAlarmCount'
+}, {
+  id: 'a',
+  name: '通讯异常总次数',
+  query: 'anomalyNumber'
+}, {
+  id: 'a',
+  name: '防拆触发总次数',
+  query: 'tamperTriggerCount'
+}, {
+  id: 'a',
+  name: '烟雾报警总次数',
+  query: 'smokeAlarmCount'
+}];
+//   门禁
+const doorCenterList = [{
+  id: 'a',
+  name: '门禁进出总人次',
+  query: 'inOutCount'
+}, {
+  id: 'a',
+  name: '通讯异常总次数',
+  query: 'anomalyNumber'
+}, {
+  id: 'a',
+  name: '白名单进出总人次',
+  query: 'whiteListInOutCount'
+}, {
+  id: 'a',
+  name: '黑名单人员识别次数',
+  query: 'blackListInOutCount'
+}, {
+  id: 'a',
+  name: '陌生人进出总人次',
+  query: 'strangerCount'
+}, {
+  id: 'a',
+  name: '白名单人员总数',
+  query: 'whiteListCount'
+}, {
+  id: 'a',
+  name: '黑名单人员总数',
+  query: 'blackListCount'
+}];
+//   摄像头
+const cameraCenterList = [{
+  id: 'a',
+  name: '告警事件总次数',
+  query: 'allEvents'
+}, {
+  id: 'a',
+  name: '识别人脸总数',
+  query: 'faceDetectionCount'
+}, {
+  id: 'a',
+  name: '入侵侦测总数',
+  query: 'intrusionDetectionCount'
+}, {
+  id: 'a',
+  name: '区域侦测总数',
+  query: 'areaDetectionCount'
+}, {
+  id: 'a',
+  name: '物品侦测总数',
+  query: 'itemsDetectionCount'
+}, {
+  id: 'a',
+  name: '通讯异常总次数',
+  query: 'anomalyNumber'
+}];
+
+const CENTER_TYPE = {
+  'CALL': callCenterList,
+  'AUDIO': audioCenterList,
+  'LED': ledCenterList,
+  'AMBIENT': ambientCenterList,
+  'LAMP': lampCenterList,
+  'SMOKE_DETECTOR': smokeCenterList,
+  'DOOR_ACCESS': doorCenterList,
+  'CAMERA': cameraCenterList
+};
+
+export const centerList = (type) => {
+  return CENTER_TYPE[type] || [];
+}

@@ -1,0 +1,1344 @@
+/* eslint-disable camelcase */
+<template>
+  <div id='ruleManageEdit' >
+    <card title="基本信息" :className="'adminCard'">
+      <FormItem
+        ref="baseFormItem"
+        :formItems="baseInfo.formItems"
+        :rules="baseInfo.formRules"
+        :disabled="baseInfo.inputDisabled"
+        :isEdit="baseInfo.isEdit"
+        :form="baseInfo.form"
+        :midway="baseInfo.midway"
+        @change="val => handleChangeForm(val)"
+      >
+      </FormItem>
+    </card>
+    <card title="执行动作" :className="'adminCard conditionCard'">
+      <el-form ref="conditionform" :inline="true" :model="conditionForm" label-width="80px">
+        <el-form-item label="满足条件：" v-if="false">
+          <el-radio-group
+            class="radioGroup"
+            v-model="conditionForm.condition"
+          >
+            <el-radio
+              v-for="ch in conditionForm.typeoOptions"
+              :label="ch.id"
+              :key="ch.id"
+            >
+              {{ch.name}}
+            </el-radio>
+          </el-radio-group>
+        </el-form-item>
+        <div v-for="(item, index) in conditionForm.items" :key="`conditionForm${index}`" class="conditionItems">
+          <div class="flexCenter itemTittle"><i class="iconfont icon-shebeijierupingtai" /></div>
+            <FormItemBase
+              :formItems="[
+                {
+                label: '条件类型',
+                prop: 'executeType',
+                inputType: 'select',
+                labelWidth: '65px',
+                options: [{
+                  id: 1,
+                  name: '下发命令'
+                }, {
+                  id: 2,
+                  name: '发送通知'
+                }, {
+                  id: 3,
+                  name: '上报告警'
+                }],
+                span: 4
+              },
+              ...item.formItems,
+              {
+                label: '',
+                prop: 'action',
+                inputType: 'custom',
+                colClass: 'delCol',
+                span: 3
+              }
+              ]"
+              :form="item"
+            >
+              <template v-slot:templateCode>
+                <div class="flexRow selectProduct" @click="selectTemplate('conditionForm', index, item.templateCode)">
+                  <span>{{item.programName || ''}}</span>
+                  <el-button type="text"><i class="el-icon-plus"/>选择</el-button>
+                </div>
+              </template>
+              <template v-slot:receiveUser>
+                <div class="flexRow selectProduct" @click="selectObj(index)">
+                  <span>{{item.receiveUser ? item.receiveUser.join(',') : ''}}</span>
+                  <el-button type="text"><i class="el-icon-plus"/>选择</el-button>
+                </div>
+              </template>
+              <template v-slot:action>
+                <div class="flexCenter action">
+                  <i class="iconfont icon-shanchu" style="fontSize: 12px; color: #0C98F2" @click="removeConditionTab('conditionForm', item, index)"/>
+                </div>
+              </template>
+            </FormItemBase>
+        </div>
+        <el-button type="primary" class="flexCenter addBtn" @click="addProductItem('conditionForm')">添加条件</el-button>
+      </el-form>
+    </card>
+    <div class="flexRow flexCenter btnList">
+      <el-button
+          type="text"
+          size="small"
+          title="取消"
+          :style="{marginRight: '10px'}"
+          class="cancel"
+          @click.prevent.stop="handleCancel"
+          >
+          取消
+      </el-button>
+      <el-button
+          type="primary"
+          size="small"
+          title="保存"
+          class="save"
+          @click.prevent.stop="handleSave"
+          >
+          保存
+      </el-button>
+    </div>
+    <dialog-cont
+      @on-cancel="addTemplateCancel"
+      :title="`选择模板`"
+      width="80%"
+      :bottomShow="false"
+      :visible.sync="addTemplate.show"
+      ref="dialog"
+    >
+      <commonTemplate ref="commonTemplate" :deviceType='selectDevType' @select="handleSelelctTemplate" :key="dialogIndex"/>
+    </dialog-cont>
+    <dialog-cont
+      @on-cancel="addProductCancel"
+      @on-confirm="addProductSubmit"
+      :visible.sync="addProduct.show"
+      width="80%"
+      :title="addProduct.title"
+      append-to-body
+      :customClass="'addProductDialog'"
+    >
+      <Main
+        ref="addProductMain"
+        :tableData="addProduct.tableData"
+        :page="addProduct.page"
+        :toolsShow="false"
+        :productNo="addProduct.productNo"
+        @onCurrentChange="onCurrentChange"
+        @onPageSizeChange="onPageSizeChange"
+        @goProductPage="selectProductPage"
+      />
+    </dialog-cont>
+    <dialog-cont
+      @on-cancel="addDeviceCancel"
+      @on-confirm="addDeviceSubmit"
+      :visible.sync="addDevice.show"
+      width="80%"
+      :title="addDevice.title"
+      append-to-body
+      :customClass="'addDeviceDialog'"
+    >
+    <div>
+      <search-form
+        :searchItems="addDevice.searchItems"
+        @onSearch="onSearch"
+        @onChange="onChange"
+        />
+      <deviceMain
+        ref="addDeviceMain"
+        :tableData="addDevice.tableData"
+        :page="addDevice.page"
+        :toolsShow="false"
+        :selection="false"
+        @onCurrentChange="onDeviceCurrentChange"
+        @onPageSizeChange="onDevicePageSizeChange"
+        @onRowCurrentChange="onRowCurrentChange"
+      />
+    </div>
+    </dialog-cont>
+    <dialog-cont
+      @on-cancel="addObjCancel"
+      @on-confirm="addObjSubmit"
+      :visible.sync="addObj.show"
+      width="80%"
+      :title="addObj.title"
+      append-to-body
+      :customClass="'addObjDialog'"
+    >
+    <div>
+      <!-- <search-form
+        :searchItems="addObj.searchItems"
+        @onSearch="onSearch"
+        @onChange="onChange"
+        /> -->
+      <deviceMain
+        ref="addObjMain"
+        :tableData="addObj.tableData"
+        :page="addObj.page"
+        :tableCols="addObj.tableCols"
+        :toolsShow="false"
+        @onCurrentChange="onObjCurrentChange"
+        @onPageSizeChange="onObjPageSizeChange"
+        @onSelectionChange="onObjSelectionChange"
+      />
+    </div>
+    </dialog-cont>
+  </div>
+</template>
+
+<script>
+import {
+  mapGetters
+} from 'vuex';
+import moment from 'moment';
+import PageTable from '@/components/adminPage-table';
+import Flex from '@/components/flex';
+import searchForm from 'components/adminSearchForm/searchForm';
+import Card from 'view/lightPole/lightPoleStatistical/components/card';
+import FormItem from '@/components/adminFormItem';
+import FormItemBase from '@/components/adminFormItem/base';
+import dialogCont from '@/components/adminDialog';
+import Main from '@/view/admin/equipmentAccess/productManagement/main';
+import DeviceMain from '@/view/admin/equipmentManagement/equipmentList/main';
+import { EVENT_LIST_TYPE } from '@/util/constants';
+import commonTemplate from './commonTemplate';
+import {
+  getDeviceProductForPage,
+  getCapability,
+  getCommandList,
+  getPropertiesList,
+  getDeviceModuleInfoForPage,
+  deviceAddLinkage,
+  deviceCapabilityLinkage,
+  getLinkageUser,
+  deviceUpdateLinkage,
+  deviceDetailLinkage,
+  deviceDeleteLinkage
+} from 'api/admin';
+import {
+  getDeviceTypeSelectList,
+  getSensorTypeSelectList,
+  getManufacturerSelectList
+} from 'api/index';
+import {
+  getSceneLinkageInfo,
+  editSceneLinkageInfo,
+  getLinkageEventEnums,
+  getLinkageDeviceEnums
+} from 'api/smokeDetectorMap';
+export default {
+  name: 'ruleManageEdit',
+  data () {
+    // const { options } = this.$_useTypes(EVENT_LIST_TYPE);
+    return {
+      dialogIndex: 0,
+      selectDevType: '',
+      baseInfo: {
+        timeDisabled: true,
+        formItems: [{
+          label: '规则名称',
+          labelWidth: '80px',
+          prop: 'sceneName',
+          inputType: 'input',
+          required: true,
+          span: 6
+        }, {
+          label: '事件类型',
+          prop: 'eventTypeCode',
+          labelWidth: '80px',
+          inputType: 'select',
+          options: [],
+          span: 6
+        }, {
+          label: '持续时间',
+          prop: 'durationTime',
+          labelWidth: '80px',
+          inputType: 'inputNumber',
+          span: 10,
+          relevanceLabel: '分钟'
+        }, {
+          label: '场景描述',
+          prop: 'sceneRemark',
+          labelWidth: '80px',
+          inputType: 'textarea',
+          maxlength: 455,
+          span: 24
+        }],
+        formRules: {},
+        form: {
+        },
+        inputDisabled: false,
+        isEdit: false,
+        midway: true
+      },
+      conditionForm: {
+        condition: undefined,
+        typeoOptions: [{
+          id: 'and',
+          name: '全部满足'
+        }, {
+          id: 'or',
+          name: '任意一个'
+        }],
+        formItems: [],
+        productNumberItem: [{
+          label: '产品',
+          prop: 'productName',
+          labelWidth: '45px',
+          inputType: 'custom',
+          span: 4
+        }],
+        deviceNameItem: [{
+          label: '设备',
+          prop: 'deviceName',
+          labelWidth: '45px',
+          inputType: 'custom',
+          span: 4
+        }],
+        defaultFormItems: [{
+          label: '联动设备',
+          prop: 'deviceType',
+          labelWidth: '80px',
+          inputType: 'select',
+          options: [],
+          span: 6
+        }, {
+          label: '执行任务',
+          prop: 'templateCode',
+          labelWidth: '80px',
+          inputType: 'select',
+          hide: true,
+          options: [{
+            id: 1,
+            name: '开'
+          }, {
+            id: 0,
+            name: '关'
+          }],
+          span: 6
+        }, {
+          label: '执行任务',
+          prop: 'templateCode',
+          labelWidth: '80px',
+          inputType: 'custom',
+          hide: true,
+          span: 6
+        }],
+        timgingItems: [{
+          label: '接收对象',
+          prop: 'receiveUser',
+          inputType: 'custom',
+          labelWidth: '80px',
+          span: 8
+        }, {
+          label: '接收渠道',
+          prop: 'receiveTypeList',
+          inputType: 'checkbox',
+          labelWidth: '80px',
+          options: [{
+            id: '1',
+            name: '电话'
+          }, {
+            id: '2',
+            name: '短信'
+          }],
+          span: 6
+        }],
+        items: [{
+          formItems: [],
+          receiveTypeList: [],
+          receiveUserList: [],
+          executeType: undefined
+        }],
+        itemsvalue: ''
+      },
+      addTemplate: {
+        show: false,
+        title: '选择模板',
+        index: 0,
+        page: {
+          current: 1,
+          pageSize: 10,
+          total: 0
+        },
+        tableData: []
+      },
+      addProduct: {
+        show: false,
+        title: '选择产品',
+        productNo: '',
+        page: {
+          current: 1,
+          pageSize: 10,
+          total: 0
+        },
+        tableData: [],
+        type: '',
+        index: 0,
+        productItem: {}
+      },
+      addDevice: {
+        show: false,
+        title: '选择设备',
+        deviceNo: '',
+        type: '',
+        page: {
+          current: 1,
+          pageSize: 10,
+          total: 0
+        },
+        tableData: [],
+        index: 0,
+        deviceItem: {},
+        searchVal: {},
+        searchChangeVal: {},
+        searchItems: [{
+          type: 'input',
+          label: '设备名称',
+          props: {
+            fieldName: 'deviceModuleName'
+          }
+        }, {
+          type: 'select',
+          label: '设施类型',
+          labelWidth: '85px',
+          props: {
+            fieldName: 'sensorTypeCode',
+            options: []
+          }
+        }, {
+          type: 'select',
+          label: '厂商',
+          labelWidth: '45px',
+          props: {
+            fieldName: 'manufacturerManageCode',
+            options: []
+          }
+        }, {
+          type: 'select',
+          label: '设备类型',
+          props: {
+            fieldName: 'deviceCode',
+            options: []
+          }
+        }, {
+          type: 'select',
+          label: '激活状态',
+          props: {
+            fieldName: 'activateStatus',
+            options: [{
+              id: 0,
+              name: '未激活'
+            }, {
+              id: 1,
+              name: '已激活'
+            }]
+          }
+        }]
+      },
+      addObj: {
+        show: false,
+        title: '选择接受对象',
+        page: {
+          current: 1,
+          pageSize: 10,
+          total: 0
+        },
+        tableData: [],
+        tableCols: [{
+          label: '角色',
+          prop: 'flag',
+          render: (h, scoped) => {
+            const userType = {
+              1: '用户',
+              2: '运营'
+            }
+            return <div>{userType[scoped.row.flag]}</div>
+          }
+        }, {
+          label: '用户名',
+          prop: 'username'
+        }, {
+          label: '邮箱',
+          prop: 'email'
+        }, {
+          label: '手机号',
+          prop: 'mobile'
+        }],
+        index: 0,
+        objItem: {},
+        searchVal: {},
+        searchItems: []
+      },
+      editData: {}
+    }
+  },
+  mounted () {
+    this.$nextTick(() => {
+      if (this.openPage === 'linkageRuleListDetail') {
+        this.editData = this.common['linkageRuleListDetail'];
+        if (this.editData.sceneCode) {
+          this.getDetailInfo();
+        }
+        getLinkageEventEnums().then(res => {
+          if (res.code === '200') {
+            // const options = res.data.map(data => {
+            //   return {
+            //     id: data.value,
+            //     name: data.text
+            //   }
+            // })
+            this.baseInfo.formItems[1].options = res.data;
+          }
+        });
+        this._deviceDetailLinkage();
+      }
+    })
+  },
+  watch: {
+    'baseInfo.form': {
+      deep: true,
+      handler (val) {
+        if (val.timeStatus === 1) {
+          this.baseInfo.timeDisabled = true;
+        } else if (val.timeStatus === 2) {
+          this.baseInfo.timeDisabled = false;
+        }
+      }
+    },
+    'conditionForm.items': {
+      deep: true,
+      // immediate: true,
+      async handler (val, oldVal) {
+        val.forEach(item => {
+          if (typeof item.receiveUser === 'string') {
+            item.receiveUser = JSON.parse(item.receiveUser)
+          }
+        })
+        const itemsval = JSON.stringify(val);
+        if (itemsval !== this.conditionForm.itemsvalue) {
+          const formItems = await Promise.all(val.map(async (valItem, index) => {
+            const parames = {
+              ...valItem
+            };
+            let formItem = [];
+            if (valItem.executeType) {
+              parames.executeType = valItem.executeType;
+              if (valItem.executeType === 2) {
+                formItem = JSON.parse(JSON.stringify(this.conditionForm.timgingItems));
+              } else {
+                let defaultFormItems = JSON.parse(JSON.stringify(this.conditionForm.defaultFormItems));
+                defaultFormItems = JSON.parse(JSON.stringify([...defaultFormItems]));
+                if ((this.conditionForm.items[index].formItems && this.conditionForm.items[index].formItems.length > 0) && (this.conditionForm.items[index].formItems.length === defaultFormItems.length)) {
+                  defaultFormItems = this.conditionForm.items[index].formItems.map((itemOption, index) => {
+                    return {
+                      ...defaultFormItems[index],
+                      ...itemOption,
+                      label: defaultFormItems[index].label,
+                      inputType: defaultFormItems[index].inputType,
+                      prop: defaultFormItems[index].prop
+                    }
+                  });
+                }
+                if (this.conditionForm.formItems[index]) {
+                  if ((valItem.executeType && !this.conditionForm.formItems[index].oldExecuteType) || (valItem.executeType !== this.conditionForm.formItems[index].oldExecuteType)) {
+                    let baseFormItem = await this.$refs.baseFormItem.getValue(false, false);
+                    if (baseFormItem.eventTypeCode) {
+                    // 根据eventTypeCode获取deviceType类型
+                      getLinkageDeviceEnums(baseFormItem.eventTypeCode).then(res => {
+                        if (res.code === '200') {
+                          this.$set(this.conditionForm.defaultFormItems[0], 'options', res.data);
+                          this.conditionForm.defaultFormItems[0].options = res.data;
+                          defaultFormItems[0].options = res.data;
+                          parames.executeType = valItem.executeType;
+                          this.conditionForm.formItems[index].oldExecuteType = null;
+                          parames.oldExecuteType = valItem.executeType;
+                        }
+                      });
+                    }
+                  }
+                  if ((valItem.deviceType && !this.conditionForm.formItems[index].oldDeviceType) || (valItem.deviceType !== this.conditionForm.formItems[index].oldDeviceType)) {
+                    if (valItem.deviceType === 'LAMP') {
+                      defaultFormItems[1].hide = false;
+                      defaultFormItems[2].hide = true;
+                    } else {
+                      defaultFormItems[1].hide = true;
+                      defaultFormItems[2].hide = false;
+                    }
+                    parames.deviceType = valItem.deviceType;
+                    parames.templateCode = undefined;
+                    this.conditionForm.formItems[index].oldDeviceType = null;
+                    parames.oldDeviceType = valItem.deviceType;
+                    if (valItem.oldDeviceType && (valItem.deviceType !== valItem.oldDeviceType)) {
+                      valItem.templateCode = undefined;
+                    }
+                  }
+                }
+                formItem = defaultFormItems;
+              }
+            }
+            parames.formItems = formItem;
+            return parames;
+          }));
+          this.$set(this.conditionForm, 'items', formItems);
+          this.$set(this.conditionForm, 'formItems', formItems);
+          this.$set(this.conditionForm, 'itemsvalue', itemsval);
+        }
+      }
+    }
+  },
+  components: {
+    PageTable,
+    Flex,
+    FormItem,
+    Card,
+    FormItemBase,
+    dialogCont,
+    Main,
+    DeviceMain,
+    searchForm,
+    commonTemplate
+  },
+  computed: {
+    ...mapGetters(['common', 'openPage'])
+  },
+  methods: {
+    getDetailInfo () {
+      getSceneLinkageInfo({linkageCode: this.editData.sceneCode}).then(async res => {
+        if (res.code === '200') {
+          await getLinkageDeviceEnums(res.data.eventTypeCode).then(enumsRes => {
+            if (enumsRes.code === '200') {
+              this.conditionForm.defaultFormItems[0].options = enumsRes.data;
+              console.log('this.conditionForm.defaultFormItems', this.conditionForm.defaultFormItems);
+              this.baseInfo.form = {
+                ...res.data
+              };
+              this.conditionForm.items = res.data.list.map(list => {
+                return {
+                  ...list,
+                  receiveUser: list.receiveUserList.map(user => user.userName)
+                }
+              });
+              this.conditionForm.formItems = res.data.list.map(command => {
+                return {}
+              });
+              delete this.baseInfo.form.list;
+            }
+          });
+        }
+      });
+    },
+    _deviceDetailLinkage () {
+      if (!this.editData.id) return;
+      deviceDetailLinkage(this.editData.id).then(res => {
+        if (res.code === '200') {
+          const data = res.data;
+          this.baseInfo.form = {
+            time: data.onTime && data.closeTime ? [moment(data.onTime).format('yyyy-MM-DD'), moment(data.closeTime).format('yyyy-MM-DD')] : [],
+            id: data.id,
+            linkNo: data.linkNo,
+            remark: data.remark,
+            ruleName: data.ruleName,
+            instantUse: data.instantUse,
+            timeStatus: data.timeStatus
+          };
+          this.conditionForm.condition = data.condition;
+          this.conditionForm.items = data.deviceLinkageConditionCommands;
+          this.conditionForm.formItems = data.deviceLinkageConditionCommands.map(command => {
+            return {}
+          });
+          this.actionForm.items = data.deviceLinkageExecuteCommands;
+          this.actionForm.formItems = data.deviceLinkageExecuteCommands.map(command => {
+            return {}
+          });
+        }
+      })
+    },
+    removeConditionTab (type, item, index) {
+      let items = this.conditionForm.items;
+      if (type === 'actionForm') {
+        items = this.actionForm.items
+      }
+      if (items.length > 1) {
+        let deleteType = 'CONDITION';
+        let title = '条件';
+        if (type === 'conditionForm') {
+        } else if (type === 'actionForm') {
+          deleteType = 'EXECUTE';
+          title = '动作';
+        }
+        this.$confirm(`此操作将永久删除该${title}, 是否继续?`, '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          if (item.id) {
+            const parames = {
+              id: item.id,
+              type: deleteType
+            };
+            deviceDeleteLinkage(parames).then(res => {
+              if (res.code === '200') {
+                this.$notify({
+                  title: '成功',
+                  message: '删除成功',
+                  type: 'success',
+                  position: 'bottom-right'
+                });
+                this.deleteItem(type, index);
+              }
+            });
+          } else {
+            this.deleteItem(type, index);
+          }
+        }).catch(() => {
+        });
+      }
+    },
+    deleteItem (type, index) {
+      if (type === 'conditionForm') {
+        this.conditionForm.items.splice(index, 1)
+      } else {
+        this.actionForm.items.splice(index, 1)
+      }
+    },
+    addTemplateCancel () {
+      this.addTemplate.show = false;
+      this.addTemplate.index = 0;
+    },
+    handleSelelctTemplate (item) {
+      const index = this.addTemplate.index;
+      let items = [...this.conditionForm.items];
+      items[index] = {
+        ...this.conditionForm.items[index],
+        templateCode: item.templateCode,
+        programName: item.templateName
+      };
+      this.$set(this.conditionForm, 'items', items);
+      this.addTemplateCancel();
+    },
+    selectTemplate (type, index, no) {
+      this.dialogIndex += 1;
+      this.addTemplate.show = true;
+      this.addTemplate.index = index;
+      this.selectDevType = this.conditionForm.items[index].deviceType
+      setTimeout(() => {
+        this.$refs.commonTemplate.selectCurrentRow(no)
+      }, 500);
+    },
+    onCurrentChange (val) {
+      this.addProduct.page.current = val;
+      this.getProductList()
+    },
+    onPageSizeChange (val) {
+      this.addProduct.page.pageSize = val
+      this.onCurrentChange(1)
+    },
+    getProductList () {
+      let data = {
+        data: {
+        },
+        pageNo: Number(this.addProduct.page.current), // 查询的分页页码
+        pageSize: Number(this.addProduct.page.pageSize) || Number(10), // 查询的分页页大小, 默认10
+        sorting: ''
+      }
+      getDeviceProductForPage(data).then(res => {
+        if (res.code === '200') {
+          const {
+            data,
+            total
+          } = res.data;
+          this.addProduct.page.total = total;
+          this.addProduct.tableData = data;
+        }
+      })
+    },
+    addProductCancel () {
+      this.addProduct.show = false;
+      this.addProduct.productItem = {};
+      this.addProduct.page = {
+        current: 1,
+        pageSize: 10,
+        total: 0
+      };
+    },
+    addProductSubmit () {
+      const type = this.addProduct.type;
+      const index = this.addProduct.index;
+      const item = this.addProduct.productItem;
+      if (type === 'conditionForm') {
+        let items = [...this.conditionForm.items];
+        items[index] = {
+          ...this.conditionForm.items[index],
+          productName: item.productName,
+          productNumber: item.productNo
+        };
+        this.$set(this.conditionForm, 'items', items);
+      }
+      if (type === 'actionForm') {
+        let items = [...this.actionForm.items];
+        items[index] = {
+          ...this.actionForm.items[index],
+          productName: item.productName,
+          productNumber: item.productNo
+        };
+        this.$set(this.actionForm, 'items', items);
+      }
+      this.addProductCancel();
+    },
+    selectProductPage (item) {
+      this.addProduct.productItem = item;
+      this.addProduct.productNo = item.productNo;
+    },
+    addProductItem (type) {
+      if (type === 'conditionForm') {
+        this.conditionForm.items = this.conditionForm.items.concat({
+          formItems: [],
+          receiveTypeList: [],
+          receiveUserList: [],
+          receiveUser: [],
+          executeType: undefined
+        });
+      }
+    },
+    _getCapability (parames) {
+      return getCapability(parames).then(async res => {
+        if (res.code === '200') {
+          return res.data.map(data => {
+            return {
+              id: data.capabilityCode,
+              name: data.capabilityName
+            }
+          });
+        }
+      })
+    },
+    _getCommandList (parames) {
+      return getCommandList(parames).then(res => {
+        if (res.code === '200') {
+          return res.data;
+        }
+      });
+    },
+    _getPropertiesList (parames) {
+      return getPropertiesList(parames).then(res => {
+        if (res.code === '200') {
+          return res.data;
+        }
+      });
+    },
+    async selectDevice (type, index, no) {
+      this.addDevice.show = true;
+      this.addDevice.index = index;
+      this.addDevice.deviceNo = no;
+      this.addDevice.type = type;
+      if (this.actionForm.items[index]) {
+        this.addDevice.searchVal = {
+          productNo: this.actionForm.items[index].productNumber
+        };
+      }
+      const data = await this.getDeviceList();
+      if (data) {
+        this.$refs.addDeviceMain.onSetCurrentRow(this.addDevice.deviceNo, 'serialNumber');
+      }
+    },
+    addDeviceCancel () {
+      this.addDevice.show = false;
+      this.addDevice.deviceItem = {};
+      this.addDevice.deviceNo = '';
+      this.addDevice.type = '';
+      this.addDevice.page = {
+        current: 1,
+        pageSize: 10,
+        total: 0
+      };
+      this.$refs.addDeviceMain.cleanData();
+    },
+    addDeviceSubmit () {
+      const index = this.addDevice.index;
+      const type = this.addDevice.type;
+      const item = this.addDevice.deviceItem;
+      if (type === 'conditionForm') {
+        let items = [...this.conditionForm.items];
+        items[index] = {
+          ...this.conditionForm.items[index],
+          deviceName: item.deviceName,
+          serialNumber: item.serialNumber,
+          productNumber: item.productNo
+        };
+        this.$set(this.conditionForm, 'items', items);
+      }
+      if (type === 'actionForm') {
+        let items = [...this.actionForm.items];
+        items[index] = {
+          ...this.actionForm.items[index],
+          deviceName: item.deviceName,
+          serialNumber: item.serialNumber,
+          productNumber: item.productNo
+        };
+        this.$set(this.actionForm, 'items', items);
+      }
+      this.addDeviceCancel();
+    },
+    onRowCurrentChange (val) {
+      this.addDevice.deviceItem = val;
+    },
+    onDeviceCurrentChange (val) {
+      this.addDevice.page.current = val;
+      this.getDeviceList()
+    },
+    onDevicePageSizeChange (val) {
+      this.addDevice.page.pageSize = val
+      this.onDeviceCurrentChange(1)
+    },
+    onSearch (val) {
+      this.addDevice.searchVal = {
+        ...this.addDevice.searchVal,
+        ...val,
+        activateStatus: val && val.activateStatus && +val.activateStatus
+      };
+      this.addDevice.page.current = 1;
+      this.getDeviceList();
+    },
+    async onChange (val) {
+      if ((!!val.manufacturerManageCode && (val.manufacturerManageCode !== this.addDevice.searchChangeVal.manufacturerManageCode)) || (!!val.sensorTypeCode && (val.sensorTypeCode !== this.addDevice.searchChangeVal.sensorTypeCode))) {
+        this.addDevice.searchChangeVal = {
+          ...val,
+          manufacturerManageCode: val.manufacturerManageCode || '',
+          sensorTypeCode: val.sensorTypeCode || '',
+          deviceCode: null
+        };
+        const deviceOptions = await this._getDeviceTypeSelectList({
+          manufacturerManageCode: val.manufacturerManageCode || '',
+          sensorTypeCode: val.sensorTypeCode || ''
+        });
+        const searchItems = [...this.addDevice.searchItems];
+        searchItems[1].initValue = val.sensorTypeCode;
+        searchItems[2].initValue = val.manufacturerManageCode;
+        searchItems[3].props = {
+          fieldName: 'deviceCode',
+          options: deviceOptions
+        };
+        this.addDevice.searchItems = searchItems;
+      }
+    },
+    _getDeviceTypeSelectList (data) {
+      const deviceParames = {
+        manufacturerCode: data.manufacturerCode,
+        sensorTypeCode: data.sensorTypeCode
+      };
+      return getDeviceTypeSelectList(deviceParames).then(res => {
+        if (res.code === '200') {
+          const deviceOptions = res.data.map(data => {
+            return {
+              id: data.code,
+              name: data.name
+            }
+          });
+          return deviceOptions;
+        }
+      });
+    },
+    getDeviceList () {
+      let data = {
+        data: {
+          ...this.addDevice.searchVal
+        },
+        pageNo: Number(this.addDevice.page.current), // 查询的分页页码
+        pageSize: Number(this.addDevice.page.pageSize) || Number(10), // 查询的分页页大小, 默认10
+        sorting: ''
+      }
+      return getDeviceModuleInfoForPage(data).then(res => {
+        if (res.code === '200') {
+          const {
+            data,
+            total
+          } = res.data;
+          this.addDevice.page.total = total;
+          this.addDevice.tableData = data;
+          return data;
+        }
+      })
+    },
+    _deviceCapabilityLinkage (data) {
+      return deviceCapabilityLinkage(data).then(res => {
+        if (res.code === '200') {
+          return res.data.map(data => {
+            return {
+              id: data.capabilityCode,
+              name: data.capabilityName
+            }
+          });
+        }
+      });
+    },
+    selectObj (index) {
+      this.addObj.show = true;
+      this.addObj.index = index;
+      this.getObjDataList();
+      setTimeout(() => {
+        if (this.conditionForm.items[index].receiveUserList.length !== 0 && this.$refs.addObjMain.$refs.pageTable) {
+          this.$refs.addObjMain.$refs.pageTable.onRowChange(this.conditionForm.items[index].receiveUserList, 'userName', true)
+        }
+      }, 1000);
+    },
+    addObjCancel () {
+      this.addObj.show = false;
+      this.addObj.index = 0;
+      this.addObj.page = {
+        current: 1,
+        pageSize: 10,
+        total: 0
+      };
+      this.$refs.addObjMain.cleanData();
+    },
+    addObjSubmit () {
+      const index = this.addObj.index;
+      const item = this.addObj.objItem;
+      let items = [...this.conditionForm.items];
+      items[index] = {
+        ...this.conditionForm.items[index],
+        receiveUserList: item,
+        receiveUser: item.map(id => id.userName)
+      };
+      // items[index].receiveUserList.push(...item)
+      this.$set(this.conditionForm, 'items', items);
+      this.addObjCancel();
+    },
+    onObjCurrentChange (val) {
+      this.addObj.page.current = val;
+      this.getObjDataList()
+    },
+    onObjPageSizeChange (val) {
+      this.addObj.page.pageSize = val
+      this.getObjData(1)
+    },
+    getObjDataList () {
+      let data = {
+        data: {
+          flag: 1
+        },
+        pageNo: Number(this.addObj.page.current), // 查询的分页页码
+        pageSize: Number(this.addObj.page.pageSize) || Number(10), // 查询的分页页大小, 默认10
+        sorting: ''
+      }
+      getLinkageUser(data).then(res => {
+        if (res.code === '200') {
+          const {
+            data,
+            total
+          } = res.data;
+          this.addObj.page.total = total;
+          this.addObj.tableData = data;
+        }
+      })
+    },
+    onObjSelectionChange (args) {
+      this.addObj.objItem = args.map(arg => {
+        return {
+          userName: arg.username,
+          realName: arg.realName
+        }
+      });
+    },
+    handleCancel () {
+      this.$router.push({
+        name: this.editData.toName
+      });
+    },
+    async handleSave () {
+      let methodApi = editSceneLinkageInfo;
+      let message = '添加成功';
+      const baseInfoVal = await this.$refs.baseFormItem.getValue();
+      let notifyinputErr = {
+        'sceneName': {
+          rule: !baseInfoVal.sceneName,
+          message: '输入规则名称'
+        }
+      };
+      const deviceLinkageConditionCommands = this.conditionForm.items.length > 0 ? this.conditionForm.items.map(item => {
+        const conditionItem = {
+          ...item,
+          programCode: item.templateCode || item.programCode
+        };
+        if (conditionItem.conditionType === null) {
+          notifyinputErr['deviceLinkageConditionCommands-conditionType'] = {
+            rule: true,
+            message: '执行动作'
+          }
+        }
+        delete conditionItem.templateCode;
+        delete conditionItem.formItems;
+        delete conditionItem.oldDeviceType;
+        delete conditionItem.oldExecuteType;
+        delete conditionItem.receiveUser;
+        return conditionItem;
+      }) : [];
+      const inputerrArray = this.$_notifyError(notifyinputErr)
+      if (inputerrArray.length !== 0) {
+        return false;
+      }
+      const params = {
+        eventTypeCode: baseInfoVal.eventTypeCode,
+        durationTime: baseInfoVal.durationTime,
+        eventType: baseInfoVal.eventType,
+        sceneName: baseInfoVal.sceneName,
+        sceneRemark: baseInfoVal.sceneRemark,
+        status: 1,
+        list: deviceLinkageConditionCommands
+      };
+      delete params.form;
+      delete params.formItems;
+      delete params.form;
+      if (this.baseInfo.form.sceneLinkageCode) {
+        params.status = this.baseInfo.form.status;
+        params.sceneLinkageCode = this.baseInfo.form.sceneLinkageCode;
+        message = '更新成功';
+      }
+      methodApi(params).then(res => {
+        if (res.code === '200') {
+          this.$notify({
+            title: '成功',
+            message,
+            type: 'success',
+            position: 'bottom-right'
+          });
+          this.handleCancel();
+        }
+      })
+    },
+    handleChangeForm (val) {
+      if (this.baseInfo.form.eventTypeCode !== val.eventTypeCode) {
+        this.baseInfo.form = val;
+        // this.conditionForm.items = [{
+        //   formItems: [],
+        //   receiveTypeList: [],
+        //   receiveUserList: [],
+        //   executeType: undefined
+        // }];
+      }
+    }
+  }
+}
+</script>
+
+<style lang="less">
+#ruleManageEdit{
+  #card{
+    background: #fff;
+    padding: 40px 20px 20px;/*no*/
+    margin-bottom: 10px;/*no*/
+    .el-input-number{
+      width: 80%;
+    }
+    .radioGroup{
+      width: 100%;
+      text-align: left;
+      label{
+        margin-right: 30px;
+        margin-left: 0;
+      }
+    }
+    .cardTitle{
+      color: #333333;
+      font-weight: normal;
+    }
+    /deep/.radioGroup{
+      display: flex;
+      flex-direction: row;
+      height: 30px;/*no*/
+      >label{
+        font-size: 12px;/*no*/
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight: 400;
+        line-height: 30px;/*no*/
+        margin-right: 20px;
+        &:last-child{
+          margin-right: 0 !important;
+        }
+      }
+      .el-radio__label{
+        padding-left: 5px;/*no*/
+        font-size: 12px;/*no*/
+      }
+    }
+  }
+  .conditionCard, .actionsCard{
+    form{
+      &:after {
+        content: '\20';
+        display: block;
+        height: 0;
+        clear: both;
+        visibility: hidden;
+        overflow: hidden;
+      }
+      >.el-form-item{
+        &:first-child{
+          margin-bottom: 10px !important;/*no*/
+          >label{
+            text-align: right;
+          }
+        }
+      }
+    }
+    /deep/.el-form-item{
+      margin-bottom: 0 !important;
+      >label{
+        min-height: 30px;/*no*/
+        font-size: 12px;/*no*/
+        font-family: PingFangSC-Regular, PingFang SC;
+        font-weight:600;
+        color:rgba(93,93,93,1);
+        text-align: left;
+      }
+
+    }
+    .delCol{
+      position: absolute;
+      right: -15px;/*no*/
+      top: 0;
+      text-align: right;
+      .el-form-item{
+        width: auto;
+        margin-right: 0;
+        .action{
+          width:28px;
+          height:28px;
+          background:rgba(238,245,255,1);
+          cursor: pointer;
+        }
+      }
+    }
+    .conditionItems,.actionsItems{
+      // display: flex;
+      // align-items: center;
+      position: relative;
+      height:80px;/*no*/
+      padding-right: 15px;/*no*/
+      padding-left: 85px;/*no*/
+      box-shadow:0px 0px 7px 0px rgba(209,209,209,1);
+      margin-bottom: 10px;/*no*/
+      .el-row{
+        display: flex;
+        align-items: center;
+        height: 100%;
+        position: relative;
+        .selectProduct{
+          position: relative;
+          height: 30px;/*no*/
+          padding:0 46px 0 10px;/*no*/
+          border-radius:4px;/*no*/
+          border:1px solid #d9d9d9;/*no*/
+          align-items: center;
+          justify-content: space-between;
+          font-size:12px;/*no*/
+          font-family:PingFangSC-Regular,PingFang SC;
+          font-weight:400;
+          color:rgba(98,98,98,1);
+          span{
+            width: 100%;
+            overflow: hidden;
+            word-break: keep-all;
+            text-overflow:ellipsis;
+            white-space: nowrap;
+          }
+          button{
+            font-size:12px;/*no*/
+            font-family:PingFangSC-Regular,PingFang SC;
+            font-weight:400;
+            color:rgba(38,90,202,1);
+            padding: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            position: absolute;
+            top: 0;
+            right: 10px;/*no*/
+            i{
+              font-size: 10px;/*no*/
+              color: #265ACA;
+            }
+          }
+        }
+      }
+      .itemTittle{
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width:70px;/*no*/
+        height:80px;/*no*/
+        background:linear-gradient(135deg,rgba(52,142,247,1) 0%,rgba(91,170,241,1) 100%);
+        box-shadow:0px 2px 4px 0px rgba(170,195,229,1);/*no*/
+        i{
+          font-size: 28px;/*no*/
+           background-image: -webkit-linear-gradient(-45deg, #D0DEFF 20%, #FFFFFF 60%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+      }
+    }
+    .addBtn{
+      padding:0;
+      width:61px;/*no*/
+      height:27px;/*no*/
+      background:rgba(37,115,241,1);
+      box-shadow:0px 2px 4px 0px rgba(190,214,251,1);/*no*/
+      font-size:12px;/*no*/
+      font-family:PingFangSC-Regular,PingFang SC;
+      font-weight:400;
+      color:rgba(255,255,255,1);
+      float: right;
+    }
+  }
+  .actionsCard{
+    .actionsItems{
+      .itemTittle{
+        background:linear-gradient(135deg,rgba(14,174,208,1) 0%,rgba(66,201,208,1) 100%);/*no*/
+        box-shadow:0px 4px 4px 0px rgba(226,234,240,1);/*no*/
+        i{
+          background-image: -webkit-linear-gradient(-45deg, #D0F6FF 20%, #FFFFFF 60%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+        }
+      }
+    }
+  }
+  .btnList{
+    padding: 20px;/*no*/
+    button{
+      &.cancel{
+        width:82px;/*no*/
+        height:36px;/*no*/
+        background:rgba(255,255,255,1);
+        border-radius:1px;/*no*/
+        border:1px solid rgba(37,115,241,1);/*no*/
+        margin-right: 20px;/*no*/
+        color: #2573F1;
+      }
+      &.save{
+        width:82px;/*no*/
+        height:36px;/*no*/
+        background:rgba(37,115,241,1);
+        box-shadow:0px 2px 4px 0px rgba(205,205,205,1);/*no*/
+        border-radius:1px;/*no*/
+      }
+    }
+  }
+}
+.addProductDialog{
+  .el-dialog__body{
+    background: #e5e7ec;
+    #productMain{
+      margin-top:0;
+    }
+  }
+}
+</style>

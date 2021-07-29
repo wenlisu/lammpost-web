@@ -1,0 +1,281 @@
+{
+    "v": "6.2.6",
+    "d": [
+      {
+        "c": "ht.Node",
+        "i": 145469,
+        "p": {
+          "displayName": "背景",
+          "position": {
+            "x": 718.0757,
+            "y": 719.76779
+          },
+          "anchorElevation": 0,
+          "width": 27000,
+          "height": 20000,
+          "tall": 50
+        },
+        "s": {
+          "all.color": "rgb(13,26,115)",
+          "top.image": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/bg.png"
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145470,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": 7207.642,
+            "y": -4063.45138
+          },
+          "anchorElevation": 0,
+          "width": 3711.66271,
+          "height": 2409.16547
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/1.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145471,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": 7296.28854,
+            "y": 700.92192
+          },
+          "anchorElevation": 0,
+          "width": 3888.95578,
+          "height": 5425.54513
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/2.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145472,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": 6828.99603,
+            "y": 5585.49107
+          },
+          "anchorElevation": 0,
+          "width": 4468.95466,
+          "height": 1329.37485
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/3.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145473,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": -994.10105,
+            "y": 5585.49107
+          },
+          "anchorElevation": 0,
+          "width": 9238.18718,
+          "height": 1527.9394
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/4.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145474,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": 2393.13126,
+            "y": 791.11912
+          },
+          "anchorElevation": 0,
+          "width": 4479.31682,
+          "height": 4463.81384
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/5.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145475,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": -212.75054,
+            "y": -4126.12674
+          },
+          "anchorElevation": 0,
+          "width": 2744.02254,
+          "height": 2534.51619
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/7.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145476,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": -909.98992,
+            "y": 648.07865
+          },
+          "anchorElevation": 0,
+          "width": 1099.54379,
+          "height": 5531.23167
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/6.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145477,
+        "p": {
+          "displayName": "normal",
+          "rotation": 1.5708,
+          "position": {
+            "x": 3241.15863,
+            "y": -4378.25387
+          },
+          "anchorElevation": 0,
+          "width": 3038.76172,
+          "height": 2371.91289,
+          "tall": 1200
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/7.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145478,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": -4108.67834,
+            "y": 750.21282
+          },
+          "anchorElevation": 0,
+          "width": 3424.68614,
+          "height": 4754.99801,
+          "tall": 1200
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/8.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145479,
+        "p": {
+          "displayName": "normal",
+          "position": {
+            "x": -8360.83163,
+            "y": 4351.00884
+          },
+          "anchor": {
+            "x": -0.07995,
+            "y": 0.88675
+          },
+          "anchorElevation": 0,
+          "width": 5522.93751,
+          "height": 10847.52518
+        },
+        "s": {
+          "shape3d": "https://smoketopo-1300837779.cos.ap-nanjing.myqcloud.com/9.json",
+          "shape3d.opacity": 1,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      },
+      {
+        "c": "ht.Node",
+        "i": 145480,
+        "p": {
+          "displayName": "error",
+          "position": {
+            "x": 6828.99603,
+            "y": 5585.49107
+          },
+          "anchorElevation": 0,
+          "width": 37,
+          "height": 24
+        },
+        "s": {
+          "shape3d": "rect",
+          "shape3d.color": "rgb(255, 0, 0)",
+          "shape3d.opacity": 0,
+          "texture.cache": true,
+          "autorotate": true,
+          "alwaysOnTop": true,
+          "vector.dynamic": false,
+          "fixSizeOnScreen": -1,
+          "texture.scale": 0.5,
+          "2d.movable": false,
+          "3d.movable": false
+        }
+      }
+    ],
+    "scene": {
+      "eye": [
+        -14594.84853,
+        9450.73936,
+        19224.13063
+      ],
+      "center": [
+        -81.01872,
+        944.52206,
+        3280.9969
+      ],
+      "near": 10,
+      "far": 284000,
+      "background": "rgb(24,36,61)",
+      "gridSize": 50,
+      "gridGap": 50,
+      "gridColor": [
+        0.4,
+        0.75,
+        0.85,
+        1
+      ]
+    }
+  }
